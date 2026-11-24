@@ -1,52 +1,32 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#08060d">
-  <meta name="description" content="A little flower, a little kindness. Open a blooming greeting made just for you.">
-  <title>A flower for you</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080510">
+<meta name="description" content="Happy Monthsary">
+<title>Happy Monthsary</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=2">
+<script src="app.js?v=2" defer></script>
 </head>
 <body>
-  <div class="stars" aria-hidden="true"></div>
-  <header><a class="wordmark" href="./">petal<span> & </span>post</a><span class="header-note">A LITTLE SOMETHING, JUST FOR YOU</span></header>
-  <main>
-    <section class="gift" aria-labelledby="heading">
-      <p class="eyebrow" id="eyebrow">SOME THINGS BLOOM JUST FOR YOU</p>
-      <h1 id="heading">A flower for <em>you.</em></h1>
-      <p class="intro" id="intro">A small reminder that you make the world a little brighter.</p>
-      <div class="flower-stage" id="stage">
-        <div class="halo" aria-hidden="true"></div>
-        <svg id="flower" viewBox="-260 -260 520 520" role="img" aria-label="A flower with layers of violet, purple, and pink petals and a spiral of blue seeds"><g id="petals"></g><g id="seeds"></g></svg>
-        <button class="open-gift" id="open"><span class="gift-symbol" aria-hidden="true">✧</span><span>Open your flower</span><small>A little happiness is waiting</small></button>
-        <span class="flower-caption" id="caption">A BLOOM THAT NEVER FADES</span>
-      </div>
-      <div class="letter" id="letter" hidden>
-        <p id="message">If I could send you a little bit of happiness, it would look like this. May your day be as lovely as the joy you bring to others.</p>
-        <p class="signature" id="signature">With a little love ♡</p>
-        <button class="text-button" id="replay">Let it bloom again</button>
-      </div>
-      <div class="actions"><button id="personalize" class="secondary-button">Make one for someone</button><span class="action-note">A flower. A few words. A smile.</span></div>
-    </section>
-  </main>
-  <footer><span>Made to make someone smile.</span><span>One little bloom at a time <span class="footer-flower" aria-hidden="true">✻</span></span></footer>
-  <dialog id="editor" aria-labelledby="editor-title">
-    <form id="greeting-form">
-      <button type="button" class="close-button" id="close" aria-label="Close">×</button>
-      <p class="eyebrow">PASS A LITTLE KINDNESS ON</p>
-      <h2 id="editor-title">Who’s your flower for?</h2>
-      <label for="recipient">Their name <span>(optional)</span></label><input id="recipient" name="to" maxlength="60" placeholder="Someone special" autocomplete="off">
-      <label for="note">Your message</label><textarea id="note" name="message" rows="4" maxlength="700" required></textarea>
-      <label for="sender">From <span>(optional)</span></label><input id="sender" name="from" maxlength="60" placeholder="Your name" autocomplete="off">
-      <button class="primary-button" type="submit">Copy greeting link</button>
-      <p class="form-note">Your message is included in the link. Anyone with it can read the greeting.</p>
-      <p id="share-status" role="status" aria-live="polite"></p>
-      <input id="share-link" aria-label="Your greeting link" readonly hidden>
-    </form>
-  </dialog>
-  <noscript><p class="noscript">Please enable JavaScript to open your animated flower.</p></noscript>
+<main class="scene">
+<div class="aurora" aria-hidden="true"></div>
+<div id="starlight" aria-hidden="true"></div>
+<h1>Happy <em>Monthsary</em></h1>
+<div class="bouquet">
+<svg id="garden" viewBox="0 0 800 850" role="img" aria-label="White and purple tulips growing, opening, and gently swaying in a sparkling night garden">
+<defs id="paints">
+<linearGradient id="stem" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#153f3c"/><stop offset=".6" stop-color="#519982"/><stop offset="1" stop-color="#a9d9b6"/></linearGradient>
+<linearGradient id="leaf" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#123e36"/><stop offset=".55" stop-color="#40826b"/><stop offset="1" stop-color="#8cbfa0"/></linearGradient>
+<radialGradient id="ground"><stop stop-color="#ad72ed" stop-opacity=".22"/><stop offset="1" stop-color="#ad72ed" stop-opacity="0"/></radialGradient>
+</defs>
+<ellipse class="ground" cx="400" cy="784" rx="280" ry="46" fill="url(#ground)"/>
+<g id="tulips"></g><g id="fireflies" aria-hidden="true"></g>
+</svg>
+</div>
+<div id="petal-rain" aria-hidden="true"></div><div id="bursts" aria-hidden="true"></div>
+</main>
 </body>
 </html>

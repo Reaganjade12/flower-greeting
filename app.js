@@ -1,110 +1,94 @@
 (() => {
   'use strict';
-  const $ = (id) => document.getElementById(id);
   const ns = 'http://www.w3.org/2000/svg';
-  const params = new URLSearchParams(location.hash.slice(1));
-  const greeting = {
-    to: (params.get('to') || '').slice(0, 60),
-    message: (params.get('message') || $('message').textContent).slice(0, 700),
-    from: (params.get('from') || '').slice(0, 60),
+  const paints = document.getElementById('paints');
+  const palettes = {
+    purple: { back: ['#42146d','#9747c7','#dec2ff'], left: ['#4b197e','#b372e2','#f1dfff'], right: ['#5a1e8e','#9943c5','#d5a9f3'], front: ['#6d269f','#bc7de7','#e8caff'] },
+    white: { back: ['#89769f','#d8cee6','#fffdfd'], left: ['#b0a0c1','#f1eaf7','#ffffff'], right: ['#a894bc','#e3daee','#fffdfb'], front: ['#b9a5ca','#eee6f4','#ffffff'] }
   };
-  if (greeting.to) {
-    $('heading').replaceChildren('A flower for ', Object.assign(document.createElement('em'), { textContent: `${greeting.to}.` }));
-    document.title = `A flower for ${greeting.to}`;
-  }
-  $('message').textContent = greeting.message;
-  if (greeting.from) $('signature').textContent = `With love, ${greeting.from} ♡`;
-  const colors = ['#9427d4', '#bd52de', '#7214a7', '#411c84', '#a4159e', '#d582ea', '#5723b7'];
-  // Angular, overlapping petals echo the turtle-drawn reference.
-  for (let layer = 0; layer < 3; layer++) {
-    const count = 30 - layer * 3;
-    for (let i = 0; i < count; i++) {
-      const rotation = i * 360 / count + layer * 8;
-      const length = 215 - layer * 24;
-      const width = 27 - layer * 2;
-      const group = document.createElementNS(ns, 'g');
-      group.setAttribute('transform', `rotate(${rotation})`);
-      const petal = document.createElementNS(ns, 'path');
-      petal.setAttribute('d', `M -9 -65 L ${-width} ${-length * .68} L 0 ${-length} L ${width * .8} ${-length * .62} L 12 -65 Z`);
-      petal.setAttribute('fill', colors[(i * 3 + layer * 2) % colors.length]);
-      petal.setAttribute('stroke', '#160c24');
-      petal.setAttribute('stroke-width', '.8');
-      petal.setAttribute('class', 'petal');
-      petal.style.setProperty('--delay', `${(i * .022 + layer * .16).toFixed(3)}s`);
-      group.append(petal);
-      $('petals').append(group);
+  for (const [color, petals] of Object.entries(palettes)) {
+    for (const [name, stops] of Object.entries(petals)) {
+      const gradient = document.createElementNS(ns, 'linearGradient');
+      gradient.id = color + '-' + name;
+      for (const [key, value] of Object.entries({x1:'0',y1:'1',x2:name==='left'?'1':'.65',y2:'0'})) gradient.setAttribute(key,value);
+      stops.forEach((color, i) => {
+        const stop = document.createElementNS(ns, 'stop');
+        stop.setAttribute('offset', [0,.55,1][i]);
+        stop.setAttribute('stop-color', color);
+        gradient.append(stop);
+      });
+      paints.append(gradient);
     }
   }
-  const disk = document.createElementNS(ns, 'circle');
-  disk.setAttribute('r', '79');
-  disk.setAttribute('fill', '#0b0717');
-  $('seeds').append(disk);
-  // The golden angle forms the spiral seed pattern of a sunflower.
-  for (let i = 0; i < 330; i++) {
-    const angle = i * Math.PI * (3 - Math.sqrt(5));
-    const radius = 4.15 * Math.sqrt(i);
-    const seed = document.createElementNS(ns, 'ellipse');
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-    seed.setAttribute('cx', x.toFixed(2));
-    seed.setAttribute('cy', y.toFixed(2));
-    seed.setAttribute('rx', (1.1 + radius / 70).toFixed(2));
-    seed.setAttribute('ry', '1.55');
-    seed.setAttribute('transform', `rotate(${angle * 180 / Math.PI + 90} ${x} ${y})`);
-    seed.setAttribute('fill', `hsl(${247 + radius / 6} 65% ${21 + radius / 1.8}%)`);
-    seed.setAttribute('class', 'seed');
-    seed.style.setProperty('--delay', `${.55 + i * .003}s`);
-    $('seeds').append(seed);
-  }
-  let revealTimer;
-  function bloom() {
-    clearTimeout(revealTimer);
-    $('stage').classList.add('opened');
-    $('open').disabled = true;
-    $('open').setAttribute('aria-expanded', 'true');
-    revealTimer = setTimeout(() => { $('letter').hidden = false; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1300);
-  }
-  $('open').setAttribute('aria-controls', 'letter');
-  $('open').setAttribute('aria-expanded', 'false');
-  $('open').addEventListener('click', bloom);
-  $('replay').addEventListener('click', () => {
-    $('stage').classList.remove('opened');
-    $('letter').hidden = true;
-    $('open').disabled = false;
-    $('open').setAttribute('aria-expanded', 'false');
-    $('open').focus({ preventScroll: true });
+  // Back flowers first. Each flower grows and opens on its own timeline.
+  const flowers = [
+    { x:242,y:320,angle:-23,scale:.83,color:'white',delay:.25 },
+    { x:545,y:320,angle:24,scale:.85,color:'purple',delay:.45 },
+    { x:330,y:220,angle:-10,scale:.93,color:'purple',delay:.05 },
+    { x:462,y:205,angle:9,scale:.95,color:'white',delay:.2 },
+    { x:180,y:445,angle:-31,scale:.79,color:'purple',delay:.65 },
+    { x:610,y:440,angle:32,scale:.82,color:'white',delay:.8 },
+    { x:397,y:360,angle:-3,scale:1.08,color:'purple',delay:.5 }
+  ];
+  flowers.forEach((flower,i) => {
+    const {x,y,angle,scale,color,delay} = flower;
+    const group = document.createElementNS(ns,'g');
+    group.classList.add('tulip');
+    group.style.setProperty('--delay', delay+'s');
+    group.style.setProperty('--sway', (3.5+i*.37)+'s');
+    const base = 385+i*5, midX=(base+x)/2, midY=(780+y)/2;
+    group.innerHTML = `
+      <path class="stem" d="M ${base} 780 Q ${midX+(x<400?35:-35)} ${midY} ${x} ${y}"/>
+      <g class="leaf-wrap">
+        <path fill="url(#leaf)" d="M ${midX} ${midY+100} Q ${midX-115} ${midY+45} ${midX-125} ${midY-85} Q ${midX-30} ${midY-48} ${midX} ${midY+100} Z"/>
+        <path class="leaf-vein" d="M ${midX} ${midY+100} Q ${midX-76} ${midY-3} ${midX-125} ${midY-85}"/>
+      </g>
+      <g class="leaf-wrap" style="animation-delay:${delay+.95}s">
+        <path fill="url(#leaf)" d="M ${midX+5} ${midY+145} Q ${midX+110} ${midY+75} ${midX+110} ${midY-40} Q ${midX+27} ${midY+8} ${midX+5} ${midY+145} Z"/>
+        <path class="leaf-vein" d="M ${midX+5} ${midY+145} Q ${midX+65} ${midY+34} ${midX+110} ${midY-40}"/>
+      </g>
+      <g transform="translate(${x} ${y}) rotate(${angle}) scale(${scale})">
+        <g class="bloom">
+          <path fill="url(#${color}-back)" d="M 0 8 C -50 -15 -48 -83 -17 -133 Q -5 -143 1 -151 Q 7 -136 21 -132 C 55 -81 48 -18 0 8 Z"/>
+          <g class="petal-left"><path fill="url(#${color}-left)" d="M 0 9 C -59 3 -87 -59 -66 -135 C -34 -125 8 -89 18 -44 C 23 -17 11 3 0 9 Z"/><path class="petal-vein" d="M -4 0 Q -49 -66 -59 -121"/></g>
+          <g class="petal-right"><path fill="url(#${color}-right)" d="M 0 9 C 59 3 87 -59 66 -135 C 34 -125 -8 -89 -18 -44 C -23 -17 -11 3 0 9 Z"/><path class="petal-vein" d="M 5 0 Q 48 -65 60 -121"/></g>
+          <path class="flower-front" fill="url(#${color}-front)" d="M 0 10 C -35 5 -48 -30 -40 -77 Q -22 -89 0 -115 Q 22 -89 40 -77 C 48 -30 35 5 0 10 Z"/>
+          <path class="petal-vein" d="M 0 4 Q -7 -49 0 -103 M -10 -1 Q -24 -33 -30 -70 M 12 -1 Q 26 -35 31 -70"/>
+        </g>
+      </g>`;
+    document.getElementById('tulips').append(group);
   });
-  $('personalize').addEventListener('click', () => {
-    $('recipient').value = greeting.to;
-    $('note').value = greeting.message;
-    $('sender').value = greeting.from;
-    $('share-status').textContent = '';
-    $('share-link').hidden = true;
-    $('editor').showModal();
-  });
-  $('close').addEventListener('click', () => $('editor').close());
-  $('editor').addEventListener('click', (event) => { if (event.target === $('editor')) { const box = $('editor').getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) $('editor').close(); } });
-  $('greeting-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const message = $('note').value.trim();
-    if (!message) { $('share-status').textContent = 'Add a few words to send with your flower.'; $('note').focus(); return; }
-    const hash = new URLSearchParams({ to: $('recipient').value.trim(), message, from: $('sender').value.trim() });
-    const url = new URL(location.href);
-    url.search = '';
-    url.hash = hash.toString();
-    $('share-link').value = url.href;
-    $('share-link').hidden = false;
-    if (location.protocol === 'file:') {
-      $('share-status').textContent = 'Publish this page first, then create your link from the live website.';
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url.href);
-      $('share-status').textContent = 'Link copied! Send it to someone who deserves a flower.';
-    } catch {
-      $('share-status').textContent = 'Your link is ready. Select and copy it below.';
-      $('share-link').focus();
-      $('share-link').select();
+  for(let i=0;i<65;i++){
+    const star=document.createElement('i');
+    star.className='star'+(i%9===0?' large':'');
+    star.style.cssText=`left:${(i*61.803)%100}%;top:${(i*37.17)%100}%;--duration:${2+i%5}s;--delay:${-i*.37}s`;
+    document.getElementById('starlight').append(star);
+  }
+  for(let i=0;i<22;i++){
+    const light=document.createElementNS(ns,'circle');
+    light.setAttribute('cx',130+(i*79.3)%540);
+    light.setAttribute('cy',170+(i*113.7)%580);
+    light.setAttribute('r',i%3===0?2.2:1.3);
+    light.setAttribute('class','firefly');
+    light.style.cssText=`--duration:${2.5+i%4}s;--delay:${-i*.6}s`;
+    document.getElementById('fireflies').append(light);
+  }
+  for(let i=0;i<10;i++){
+    const petal=document.createElement('i');
+    petal.className='falling-petal'+(i%2?' purple':'');
+    petal.style.cssText=`--x:${(i*29.7)%95}%;--duration:${12+i%6}s;--delay:${i*1.8+3}s`;
+    document.getElementById('petal-rain').append(petal);
+  }
+  document.querySelector('.scene').addEventListener('pointerdown',event=>{
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const box=document.querySelector('.scene').getBoundingClientRect(),bursts=document.getElementById('bursts');
+    if(bursts.childElementCount>100)return;
+    for(let i=0;i<16;i++){
+      const spark=document.createElement('i'),angle=i*Math.PI/8;
+      spark.className='spark';
+      spark.style.cssText=`left:${event.clientX-box.left}px;top:${event.clientY-box.top}px;--dx:${Math.cos(angle)*(45+i%3*18)}px;--dy:${Math.sin(angle)*(45+i%3*18)}px`;
+      bursts.append(spark);
+      spark.addEventListener('animationend',()=>spark.remove(),{once:true});
     }
   });
 })();
