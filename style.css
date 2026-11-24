@@ -15,4 +15,23 @@
 @keyframes petal-fall{0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0)}10%{opacity:.6}85%{opacity:.4}100%{opacity:0;transform:translate3d(100px,110svh,0) rotate(340deg)}}
 @keyframes burst{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
 @media(max-width:600px){h1{font-size:clamp(42px,10vw,62px);margin-top:7svh}.bouquet{width:100vw;margin-top:18px}#garden{height:68svh}.scene{justify-content:center}.falling-petal{width:8px;height:15px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}.stem{stroke-dashoffset:0}.falling-petal{display:none}.star{opacity:.4}.firefly{opacity:.65}}
+/* Motion is the greeting itself; the icon control pauses all effects. */
+.scene{height:100svh;min-height:0;padding:24px 0 12px;justify-content:flex-start}
+h1{flex:0 0 auto;margin:0 16px;font-size:clamp(34px,7.2svh,76px)}
+.bouquet{flex:1 1 auto;min-height:0;width:min(700px,100vw);margin:0 auto;animation:bouquet-float 4s ease-in-out infinite alternate}
+#garden{position:absolute;inset:0;width:100%;height:100%}
+.tulip{animation-duration:2.8s;animation-delay:var(--delay)}
+.bloom{animation:flower-grow 2s calc(var(--delay) + 1s) both cubic-bezier(.16,.8,.3,1),bloom-pulse 3s calc(var(--delay) + 3s) ease-in-out infinite alternate}
+.petal-left{animation:open-left 2.5s calc(var(--delay) + 1.4s) both,petal-wave-left 3s calc(var(--delay) + 3.9s) ease-in-out infinite alternate}
+.petal-right{animation:open-right 2.5s calc(var(--delay) + 1.4s) both,petal-wave-right 3s calc(var(--delay) + 3.9s) ease-in-out infinite alternate}
+#magic{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#motion-toggle{position:absolute;right:18px;bottom:18px;z-index:3;width:42px;height:42px;border:1px solid #dbc1ef55;border-radius:50%;background:#170e2699;color:#e9d5f9;cursor:pointer;display:grid;place-items:center}
+#motion-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+#motion-toggle:focus-visible{outline:2px solid #e4beff;outline-offset:4px}
+.paused *, .paused *::before, .paused *::after{animation-play-state:paused!important}
+@keyframes sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes bouquet-float{from{transform:translateY(5px)}to{transform:translateY(-8px)}}
+@keyframes bloom-pulse{from{transform:scale(.94,1.02)}to{transform:scale(1.07,.97)}}
+@keyframes petal-wave-left{from{transform:rotate(-6deg)}to{transform:rotate(-18deg)}}
+@keyframes petal-wave-right{from{transform:rotate(6deg)}to{transform:rotate(18deg)}}
+@media(max-width:600px){.scene{padding-top:32px}h1{font-size:clamp(34px,6.5svh,58px)}.bouquet{width:100vw;margin:0 auto}}

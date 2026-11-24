@@ -80,7 +80,7 @@
     document.getElementById('petal-rain').append(petal);
   }
   document.querySelector('.scene').addEventListener('pointerdown',event=>{
-    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    if(document.body.classList.contains('paused') || event.target.closest('#motion-toggle'))return;
     const box=document.querySelector('.scene').getBoundingClientRect(),bursts=document.getElementById('bursts');
     if(bursts.childElementCount>100)return;
     for(let i=0;i<16;i++){
@@ -90,5 +90,84 @@
       bursts.append(spark);
       spark.addEventListener('animationend',()=>spark.remove(),{once:true});
     }
+  });
+  // Keep the requested animation running even when the OS disables UI effects.
+  // An explicit icon control lets the visitor pause the entire scene.
+  const canvas = document.getElementById('magic');
+  const ctx = canvas.getContext('2d');
+  const scene = document.querySelector('.scene');
+  let width = 0, height = 0, clock = 0, previous = 0;
+  let paused = false;
+  function resize() {
+    width = scene.clientWidth;
+    height = scene.clientHeight;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  new ResizeObserver(resize).observe(scene);
+  resize();
+  function heart(x, y, size, rotation, alpha, white) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.scale(size, size);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = white ? '#fff4ff' : '#d5a0ff';
+    ctx.shadowColor = '#c975ff';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.moveTo(0, .8);
+    ctx.bezierCurveTo(-2, -.5, -1.2, -1.7, 0, -.7);
+    ctx.bezierCurveTo(1.2, -1.7, 2, -.5, 0, .8);
+    ctx.fill();
+    ctx.restore();
+  }
+  function draw(now) {
+    const delta = previous ? Math.min((now - previous) / 1000, .05) : 0;
+    previous = now;
+    if (!paused && !document.hidden) {
+      clock += delta;
+      ctx.clearRect(0, 0, width, height);
+      const span = Math.min(width * .35, 270);
+      // A rising spiral of luminous hearts continuously wraps the bouquet.
+      for (let i = 0; i < 24; i++) {
+        const progress = (clock * .12 + i / 24) % 1;
+        const theta = progress * Math.PI * 5 + clock * .55;
+        const radius = span * (.35 + .65 * Math.sin(progress * Math.PI));
+        const x = width / 2 + Math.cos(theta) * radius;
+        const y = height * (.94 - progress * .68);
+        const alpha = Math.sin(progress * Math.PI) * (.55 + Math.sin(theta) * .25);
+        heart(x, y, (width < 600 ? 4 : 6) + (1 + Math.sin(theta)) * 2, Math.sin(theta) * .4, alpha, i % 3 === 0);
+      }
+      // Tiny sparks follow the same helix, forming an animated light ribbon.
+      for (let i = 0; i < 130; i++) {
+        const progress = (clock * .12 + i / 130) % 1;
+        const theta = progress * Math.PI * 5 + clock * .55;
+        const radius = span * (.35 + .65 * Math.sin(progress * Math.PI));
+        const x = width / 2 + Math.cos(theta) * radius + Math.sin(i * 23) * 12;
+        const y = height * (.94 - progress * .68) + Math.cos(i * 7) * 12;
+        ctx.globalAlpha = Math.sin(progress * Math.PI) * (.3 + .4 * (1 + Math.sin(clock * 3 + i)) / 2);
+        ctx.fillStyle = i % 3 === 0 ? '#ffffff' : '#c589ff';
+        ctx.shadowColor = '#bb73ff';
+        ctx.shadowBlur = 9;
+        ctx.beginPath();
+        ctx.arc(x, y, 1 + (i % 4) * .4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+  document.getElementById('motion-toggle').addEventListener('click', () => {
+    paused = !paused;
+    document.body.classList.toggle('paused', paused);
+    const toggle = document.getElementById('motion-toggle');
+    toggle.setAttribute('aria-pressed', String(paused));
+    toggle.setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+    document.getElementById('motion-icon').setAttribute('d', paused ? 'M8 5L19 12L8 19Z' : 'M8 6V18M16 6V18');
   });
 })();
